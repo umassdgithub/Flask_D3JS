@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.js"></script>
+    <style>
+        body{
+            font-family:sans-serif;
+        }
+        svg{
+            width:512px;
+            height: 512px;
+            border: solid 1px black;
+            
+        }
+        .container{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        #canvas{
+            height:100vh;
+        }
+        .main{
+            display:flex
+
+        }
+        #files {
+            height: 500px;
+            font-size: 1.2em; /* Adjust the font size as needed */
+            margin: 10px; /* Add margin as needed */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div>
+            <h1>CT Scan Images with Flask Backend </h1>
+        </div>
+        <div id="slider-div">
+            <label for=slider>
+                Slide
+            <label>
+                <input type=range value=2 min=50 max=100 id="slider" />
+        </div>
+        
+        <div class="main">
+        
+            <div id="files_container">
+        <select id="files" 
+            name="file" 
+            size="10"
+            multiple="multiple">
+           
+            </select>
+            </div>
+            <div class="canvas">
+                    <svg viewBox="-5 -10 270 270">
+                    </svg>
+            </div>    
+        </div>
+    </div>
+        
+    
+    <script>
+      
+const svg = d3.select("svg");
+const path = d3.geoPath();
+function plot_contour(fileNumber)
+{
+    // Step 1 read csv file
+    d3.json(`http://127.0.0.1:5001/data?file=${fileNumber}`).then(data=>
+    {
+        d3.select("svg").selectAll("*").remove()
+        // data dimensions
+        let m= 256, n= 256;
+        // Step 2 convert data into 1D list
+        let values_density=[]
+        data.forEach(col=>{col.forEach(d=>values_density.push(+d))})
+        const min_max = d3.extent(values_density,d=>d)
+        /////////////////COLOR CODING/////////////////////////////
+        const colors = d3.scaleLinear()
+        .domain(d3.range(min_max[0],min_max[1], parseInt(Math.abs(min_max[0]-min_max[1])/20)))
+        .range(["#0d1a50", "#3e5eba", "#2b83ba", "#abdda4", "#ffffbf", "#fdae61", "#d7191c"])
+        .interpolate(d3.interpolateHcl);
+
+        function draw(){
+            ///////////////////////////////////////////////////////////
+            // Step 3 contour generator
+            let contours = d3.contours()
+                    .size([m, n])
+                    .thresholds(d3.range(min_max[0],min_max[1],40)) // threshold is 6 degrees
+                    (values_density);
+
+                // Step 3 append contour to path (d)
+                svg.append("g")
+                    .attr("class","contours")
+                    .selectAll("path")
+                    .data(contours)
+                    .enter()
+                    .append("path")
+                    .attr("d",function(d){return path(d)})
+                    .attr("stroke","black")
+                    .attr("stroke-width",".1px")
+                    .attr("stroke-linejoin", "round")
+                    .attr("fill",  d=> colors(d.value))
+                }
+
+        function update(threshold){
+            
+            svg.selectAll(".contours").remove();
+
+            contours = d3.contours()
+                .size([m, n])
+                .thresholds(d3.range(min_max[0],min_max[1],threshold)) // threshold is 6 degrees
+                (values_density);
+
+            
+                svg.append("g")
+                .attr("class","contours")
+                .selectAll("path")
+                .data(contours)
+                .enter()
+                .append("path")
+                .attr("d",function(d){return path(d)})
+                .attr("stroke","black")
+                .attr("stroke-width",".1px")
+                .attr("stroke-linejoin", "round")
+                .attr("fill",  d=> colors(d.value))
+        }
+                document.querySelector("#slider")
+                .addEventListener("change",
+                (d)=>{
+                    update(event.target.value)
+                })
+                draw()
+                
+    })
+}
+filesList()
+plot_contour("brain_001.dcm")
+
+
+function filesList(){
+
+    d3.json("http://127.0.0.1:5001/files").then(files_data=>{
+    const selectElement = d3.select("#files");
+    const options = selectElement
+    .selectAll("option")
+    .data(files_data)
+    .enter()
+    .append("option")
+    .text(function(d) {
+        return d;
+    })
+
+    selectElement.on("change", (d)=>{
+        const selectedOption = selectElement.property("value");
+        plot_contour(selectedOption)
+    });
+    
+    selectElement.attr("size", files_data.length);
+    })
+}
+
+
+    </script>
+</body>
+</html>
