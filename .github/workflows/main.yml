@@ -20,7 +20,7 @@ jobs:
           python-version: 3.x
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r ./D3js_Flask/requirements.txt
 
       - name: Start Flask App
-        run: python app.py
+        run: python ./D3js_Flask/app.py
