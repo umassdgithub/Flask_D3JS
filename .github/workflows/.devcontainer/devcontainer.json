@@ -1,0 +1,12 @@
+{
+    "name": "Flask Codespace",
+    "dockerFile": "Dockerfile",
+    "extensions": [
+      "ms-python.python",
+      "visualstudioexptteam.vscodeintellicode"
+    ],
+    "settings": {},
+    "postCreateCommand": "pip install -r ./D3js_Flask/requirements.txt",
+    "forwardPorts": [5000]
+  }
+  
