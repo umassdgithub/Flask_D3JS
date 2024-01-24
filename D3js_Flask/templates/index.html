@@ -43,11 +43,11 @@
         </div>
         <div id="slider-div">
             <label for=slider>
-                Slide
+                Threshold
             <label>
                 <input type=range value=2 min=50 max=100 id="slider" />
         </div>
-        
+        <hr/>
         <div class="main">
         
             <div id="files_container">
@@ -152,13 +152,11 @@ function filesList(){
     d3.json("/files").then(files_data=>{
     const selectElement = d3.select("#files");
     const options = selectElement
-    .selectAll("option")
-    .data(files_data)
-    .enter()
-    .append("option")
-    .text(function(d) {
-        return d;
-    })
+        .selectAll("option")
+        .data(files_data)
+        .enter()
+        .append("option")
+        .text(d=>d)
 
     selectElement.on("change", (d)=>{
         const selectedOption = selectElement.property("value");
