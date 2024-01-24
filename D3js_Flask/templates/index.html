@@ -43,11 +43,11 @@
         </div>
         <div id="slider-div">
             <label for=slider>
-                Slide
+                Threshold
             <label>
                 <input type=range value=2 min=50 max=100 id="slider" />
         </div>
-        
+        <hr/>
         <div class="main">
         
             <div id="files_container">
@@ -73,7 +73,9 @@ const path = d3.geoPath();
 function plot_contour(fileNumber)
 {
     // Step 1 read csv file
-    d3.json(`http://127.0.0.1:5001/data?file=${fileNumber}`).then(data=>
+    //d3.json(`http://127.0.0.1:5000/data?file=${fileNumber}`).then(data=>
+    d3.json(`/data?file=${fileNumber}`).then(data=>
+
     {
         d3.select("svg").selectAll("*").remove()
         // data dimensions
@@ -147,16 +149,14 @@ plot_contour("brain_001.dcm")
 
 function filesList(){
 
-    d3.json("http://127.0.0.1:5001/files").then(files_data=>{
+    d3.json("/files").then(files_data=>{
     const selectElement = d3.select("#files");
     const options = selectElement
-    .selectAll("option")
-    .data(files_data)
-    .enter()
-    .append("option")
-    .text(function(d) {
-        return d;
-    })
+        .selectAll("option")
+        .data(files_data)
+        .enter()
+        .append("option")
+        .text(d=>d)
 
     selectElement.on("change", (d)=>{
         const selectedOption = selectElement.property("value");
