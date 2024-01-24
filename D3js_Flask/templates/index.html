@@ -73,7 +73,9 @@ const path = d3.geoPath();
 function plot_contour(fileNumber)
 {
     // Step 1 read csv file
-    d3.json(`http://127.0.0.1:5001/data?file=${fileNumber}`).then(data=>
+    //d3.json(`http://127.0.0.1:5000/data?file=${fileNumber}`).then(data=>
+    d3.json(`/data?file=${fileNumber}`).then(data=>
+
     {
         d3.select("svg").selectAll("*").remove()
         // data dimensions
@@ -147,7 +149,7 @@ plot_contour("brain_001.dcm")
 
 function filesList(){
 
-    d3.json("http://127.0.0.1:5001/files").then(files_data=>{
+    d3.json("/files").then(files_data=>{
     const selectElement = d3.select("#files");
     const options = selectElement
     .selectAll("option")
