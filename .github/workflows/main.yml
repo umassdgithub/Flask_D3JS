@@ -10,6 +10,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      # Define the service for port forwarding
+      codespaces:
+        image: ghcr.io/github/vscode-codespaces:latest
+        ports:
+          - 5000:5000  # Map port 5000 in Codespaces to 5000 locally
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -24,3 +31,11 @@ jobs:
 
       - name: Start Flask App
         run: python ./D3js_Flask/app.py
+
+      # Optional: Wait for the app to start before proceeding
+      - name: Wait for Flask App to Start
+        run: sleep 5
+
+      # Optional: Open a browser tab to the running app in Code Spaces
+      - name: Open App in Browser
+        run: open http://localhost:5000  # Change the port if needed
